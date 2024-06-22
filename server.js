@@ -1,5 +1,5 @@
 const http = require('http')
-require('.env').config()
+require('dotenv').config()
 
 const PORT = process.env.port || 3000
 

@@ -7,8 +7,15 @@ const UserSchema = new mongoose.Schema({
     password: {type: String, required: true}
 })
 
-UserSchema.pre('save', (next) => {
-
+UserSchema.pre('save', async (next) => {
+    if (!this.isModified('password')) next()
+    try {
+        const salt = await bcrypt.genSalt(10)
+        this.password = await bcrypt.hash(this.password, salt)
+        next()
+    } catch (err){
+        console.log(err)
+    }
 })
 
 module.exports = mongoose.model('users', UserSchema)
