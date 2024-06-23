@@ -1,15 +1,21 @@
 const jwt = require('jsonwebtoken')
-const userRouter = express.Router()
 
-const userHeader = req.headers.authorization
+function verifyJWT(req, res, next){
+    const userHeader = req.headers.authorization
 
-if (!userHeader || !userHeader.startsWith('Bearer ')){
-    return res.json({message: "Unauthorized access"})
-}
+    if (!userHeader || !userHeader.startsWith('Bearer ')){
+        return res.status(401).json({message: "Unauthorized access"})
+    }
 
-try {
     const token = userHeader.split(' ')[1]
-    jwt.verify(token, process.env.JWT_SECRET)
-} catch {
-
+    
+    try {
+        const decoded_payload = jwt.verify(token, process.env.JWT_SECRET)
+        req.user = decoded_payload
+        next()
+    } catch(err) {
+        res.status(401).json({message: 'Unauthorized. Error encountered'})
+    }
 }
+
+module.exports = verifyJWT
